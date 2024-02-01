@@ -1,0 +1,12 @@
+#!/bin/bash
+
+read -p "Por favor, insira o número da porta: " port
+
+# Verifica se o valor inserido é um número válido
+if ! [[ "$port" =~ ^[0-9]+$ ]] || ((port < 1 || port > 65535)); then
+  echo "Por favor, insira um número de porta válido (1-65535)."
+else
+  PID=$(lsof -t -i:$port)
+  echo $PID
+fi
+

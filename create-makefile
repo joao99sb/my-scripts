@@ -1,0 +1,86 @@
+#!/bin/python3
+import argparse
+import os
+
+build_file_python = """#!/usr/bin/env python3
+import os
+import subprocess
+
+if not os.path.exists("build"):
+    os.makedirs("build")
+
+os.chdir("build")
+
+subprocess.run(["cmake", ".."])
+
+subprocess.run(["make"])
+
+print("Configuração concluída. Agora você pode compilar o projeto.")
+"""
+
+
+def build_file_content(filename, content):
+    with open(filename, "w") as arquivo:
+        arquivo.write(content)
+
+
+def build_cmake(project_name):
+    cmake_file = f"""\
+cmake_minimum_required(VERSION 3.16)
+project({project_name})
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Adicione aqui qualquer configuração adicional necessária
+
+# Defina a lista de arquivos-fonte
+file(GLOB SRC src/*.c)
+
+# Crie o executável usando a lista de arquivos-fonte
+add_executable(${{PROJECT_NAME}} ${{SRC}})
+
+# Adicione aqui quaisquer bibliotecas ou dependências necessárias
+# target_link_libraries(${{PROJECT_NAME}} library_name)
+
+# Adicione aqui quaisquer flags de compilação ou linkagem adicionais, se necessário
+# target_compile_options(${{PROJECT_NAME}} PRIVATE -Wall -Wextra)
+"""
+    build_file_content("CMakeLists.txt", cmake_file)
+
+
+def create_file(name):
+    if not os.path.exists(name):
+        os.makedirs(name)
+
+def criar_pasta_e_arquivo():
+    create_file('src')
+
+    main_c_content = """\
+#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    return 0;
+}
+"""
+
+    with open("src/main.c", "w") as main_file:
+        main_file.write(main_c_content)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Cria um arquivo de construção simples."
+    )
+    parser.add_argument(
+        "-o", "--output", help="Nome do arquivo de saída", default="project"
+    )
+    args = parser.parse_args()
+
+    project_name = args.output
+
+    create_file(project_name)
+    os.chdir(project_name)
+    build_file_content("build.py", build_file_python)
+    build_cmake(project_name)
+    criar_pasta_e_arquivo()
